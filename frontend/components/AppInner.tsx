@@ -6,12 +6,16 @@ import { ChartsView } from './ChartsView';
 import { SettingsView } from './SettingsView';
 import { Navigation } from './Navigation';
 import { useToast } from '@/components/ui/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/lib/i18n';
 import backend from '~backend/client';
 import type { User } from '~backend/puff/create_user';
 
 export function AppInner() {
   const [currentView, setCurrentView] = useState<'counter' | 'stats' | 'charts' | 'settings'>('counter');
   const [userId, setUserId] = useState<number | null>(null);
+  const { language } = useLanguage();
+  const t = useTranslation(language);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -33,14 +37,14 @@ export function AppInner() {
       setUserId(user.id);
       localStorage.setItem('puffCountUserId', user.id.toString());
       toast({
-        title: "Welcome to Puff Count!",
-        description: "Your profile has been created. Start tracking your puffs.",
+        title: t.welcome,
+        description: t.welcomeMessage,
       });
     },
     onError: (error) => {
       console.error('Failed to create user:', error);
       toast({
-        title: "Error",
+        title: t.error,
         description: "Failed to create user profile. Please try again.",
         variant: "destructive",
       });
@@ -58,7 +62,7 @@ export function AppInner() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Setting up your profile...</p>
+          <p className="text-gray-600">{t.settingUpProfile}</p>
         </div>
       </div>
     );
@@ -67,15 +71,15 @@ export function AppInner() {
   const renderCurrentView = () => {
     switch (currentView) {
       case 'counter':
-        return <PuffCounter userId={userId} user={user} />;
+        return <PuffCounter userId={userId} user={user} language={language} />;
       case 'stats':
-        return <StatsView userId={userId} />;
+        return <StatsView userId={userId} language={language} />;
       case 'charts':
-        return <ChartsView userId={userId} />;
+        return <ChartsView userId={userId} language={language} />;
       case 'settings':
-        return <SettingsView userId={userId} user={user} />;
+        return <SettingsView userId={userId} user={user} language={language} />;
       default:
-        return <PuffCounter userId={userId} user={user} />;
+        return <PuffCounter userId={userId} user={user} language={language} />;
     }
   };
 
@@ -83,8 +87,8 @@ export function AppInner() {
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-md mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-900 text-center">Puff Count</h1>
-          <p className="text-sm text-gray-600 text-center mt-1">Track your journey to quit vaping</p>
+          <h1 className="text-2xl font-bold text-gray-900 text-center">{t.appTitle}</h1>
+          <p className="text-sm text-gray-600 text-center mt-1">{t.appSubtitle}</p>
         </div>
       </header>
 
@@ -92,7 +96,7 @@ export function AppInner() {
         {renderCurrentView()}
       </main>
 
-      <Navigation currentView={currentView} onViewChange={setCurrentView} />
+      <Navigation currentView={currentView} onViewChange={setCurrentView} language={language} />
     </div>
   );
 }

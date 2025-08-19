@@ -1,18 +1,22 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Cigarette, BarChart3, TrendingUp, Settings } from 'lucide-react';
+import { useTranslation, type Language } from '@/lib/i18n';
 
 interface NavigationProps {
   currentView: 'counter' | 'stats' | 'charts' | 'settings';
   onViewChange: (view: 'counter' | 'stats' | 'charts' | 'settings') => void;
+  language: Language;
 }
 
-export function Navigation({ currentView, onViewChange }: NavigationProps) {
+export function Navigation({ currentView, onViewChange, language }: NavigationProps) {
+  const t = useTranslation(language);
+
   const navItems = [
-    { id: 'counter' as const, label: 'Counter', icon: Cigarette },
-    { id: 'stats' as const, label: 'Stats', icon: BarChart3 },
-    { id: 'charts' as const, label: 'Charts', icon: TrendingUp },
-    { id: 'settings' as const, label: 'Settings', icon: Settings },
+    { id: 'counter' as const, label: t.counter, icon: Cigarette },
+    { id: 'stats' as const, label: t.stats, icon: BarChart3 },
+    { id: 'charts' as const, label: t.charts, icon: TrendingUp },
+    { id: 'settings' as const, label: t.settings, icon: Settings },
   ];
 
   return (

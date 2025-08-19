@@ -6,16 +6,19 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Cigarette, Target, Zap } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useTranslation, type Language } from '@/lib/i18n';
 import backend from '~backend/client';
 import type { User } from '~backend/puff/create_user';
 
 interface PuffCounterProps {
   userId: number;
   user: User;
+  language: Language;
 }
 
-export function PuffCounter({ userId, user }: PuffCounterProps) {
+export function PuffCounter({ userId, user, language }: PuffCounterProps) {
   const [isPressed, setIsPressed] = useState(false);
+  const t = useTranslation(language);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -50,8 +53,8 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
     onError: (error) => {
       console.error('Failed to add puff:', error);
       toast({
-        title: "Error",
-        description: "Failed to record puff. Please try again.",
+        title: t.error,
+        description: t.failedToRecord,
         variant: "destructive",
       });
     },
@@ -78,14 +81,14 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Target className="h-5 w-5 text-blue-600" />
-            Today's Progress
+            {t.todaysProgress}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-gray-900">{currentPuffs}</div>
             <div className="text-sm text-gray-600">
-              {dailyGoal > 0 ? `of ${dailyGoal} puffs` : 'puffs today'}
+              {dailyGoal > 0 ? `${t.ofGoal} ${dailyGoal} ${t.puffs}` : t.puffsToday}
             </div>
           </div>
           
@@ -93,8 +96,8 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
             <div className="space-y-2">
               <Progress value={Math.min(progress, 100)} className="h-3" />
               <div className="flex justify-between text-sm text-gray-600">
-                <span>{Math.round(progress)}% of goal</span>
-                <span>{Math.max(0, dailyGoal - currentPuffs)} remaining</span>
+                <span>{Math.round(progress)}% {t.ofGoal}</span>
+                <span>{Math.max(0, dailyGoal - currentPuffs)} {t.remaining}</span>
               </div>
             </div>
           )}
@@ -104,13 +107,13 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
               <div className="text-lg font-semibold text-orange-600">
                 {totalNicotine.toFixed(1)}mg
               </div>
-              <div className="text-xs text-gray-600">Nicotine</div>
+              <div className="text-xs text-gray-600">{t.nicotine}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-green-600">
                 {user.nicotinePerPuff}mg
               </div>
-              <div className="text-xs text-gray-600">Per puff</div>
+              <div className="text-xs text-gray-600">{t.perPuff}</div>
             </div>
           </div>
         </CardContent>
@@ -133,7 +136,7 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
         >
           <div className="flex flex-col items-center gap-2">
             <Cigarette className="h-12 w-12" />
-            <span>TAP TO PUFF</span>
+            <span>{t.tapToPuff}</span>
           </div>
         </Button>
       </div>
@@ -143,7 +146,7 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
         <Card className="bg-gradient-to-br from-green-50 to-green-100">
           <CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-700">{currentPuffs}</div>
-            <div className="text-sm text-green-600">Today</div>
+            <div className="text-sm text-green-600">{t.today}</div>
           </CardContent>
         </Card>
         
@@ -152,7 +155,7 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
             <div className="text-2xl font-bold text-orange-700">
               {totalNicotine.toFixed(1)}
             </div>
-            <div className="text-sm text-orange-600">mg Nicotine</div>
+            <div className="text-sm text-orange-600">mg {t.nicotine}</div>
           </CardContent>
         </Card>
       </div>
@@ -163,10 +166,10 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-red-700">
               <Zap className="h-5 w-5" />
-              <span className="font-medium">Goal exceeded!</span>
+              <span className="font-medium">{t.goalExceeded}</span>
             </div>
             <p className="text-sm text-red-600 mt-1">
-              You've reached your daily limit. Consider taking a break.
+              {t.goalExceededMessage}
             </p>
           </CardContent>
         </Card>
@@ -176,9 +179,9 @@ export function PuffCounter({ userId, user }: PuffCounterProps) {
         <Card className="bg-green-50 border-green-200">
           <CardContent className="p-4">
             <div className="text-center text-green-700">
-              <div className="font-medium">Great start!</div>
+              <div className="font-medium">{t.greatStart}</div>
               <p className="text-sm text-green-600 mt-1">
-                No puffs recorded today. Keep it up!
+                {t.greatStartMessage}
               </p>
             </div>
           </CardContent>

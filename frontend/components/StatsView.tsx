@@ -3,13 +3,17 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingDown, TrendingUp, Calendar, Award, Cigarette, Droplets } from 'lucide-react';
+import { useTranslation, formatDate, type Language } from '@/lib/i18n';
 import backend from '~backend/client';
 
 interface StatsViewProps {
   userId: number;
+  language: Language;
 }
 
-export function StatsView({ userId }: StatsViewProps) {
+export function StatsView({ userId, language }: StatsViewProps) {
+  const t = useTranslation(language);
+
   const { data: stats, isLoading } = useQuery({
     queryKey: ['stats', userId, 'month'],
     queryFn: () => backend.puff.getStats({ userId, period: 'month' }),
@@ -38,8 +42,8 @@ export function StatsView({ userId }: StatsViewProps) {
   if (!stats) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600">No statistics available yet.</p>
-        <p className="text-sm text-gray-500 mt-2">Start tracking puffs to see your stats!</p>
+        <p className="text-gray-600">{t.noStatsYet}</p>
+        <p className="text-sm text-gray-500 mt-2">{t.startTrackingStats}</p>
       </div>
     );
   }
@@ -51,8 +55,8 @@ export function StatsView({ userId }: StatsViewProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Your Statistics</h2>
-        <p className="text-gray-600">Last 30 days overview</p>
+        <h2 className="text-2xl font-bold text-gray-900">{t.yourStatistics}</h2>
+        <p className="text-gray-600">{t.last30Days}</p>
       </div>
 
       {/* Streak Cards */}
@@ -61,8 +65,8 @@ export function StatsView({ userId }: StatsViewProps) {
           <CardContent className="p-4 text-center">
             <Award className="h-8 w-8 text-green-600 mx-auto mb-2" />
             <div className="text-2xl font-bold text-green-700">{stats.currentStreak}</div>
-            <div className="text-sm text-green-600">Current Streak</div>
-            <div className="text-xs text-green-500 mt-1">days clean</div>
+            <div className="text-sm text-green-600">{t.currentStreak}</div>
+            <div className="text-xs text-green-500 mt-1">{t.daysClean}</div>
           </CardContent>
         </Card>
 
@@ -70,8 +74,8 @@ export function StatsView({ userId }: StatsViewProps) {
           <CardContent className="p-4 text-center">
             <Calendar className="h-8 w-8 text-blue-600 mx-auto mb-2" />
             <div className="text-2xl font-bold text-blue-700">{stats.longestStreak}</div>
-            <div className="text-sm text-blue-600">Best Streak</div>
-            <div className="text-xs text-blue-500 mt-1">days clean</div>
+            <div className="text-sm text-blue-600">{t.bestStreak}</div>
+            <div className="text-xs text-blue-500 mt-1">{t.daysClean}</div>
           </CardContent>
         </Card>
       </div>
@@ -81,20 +85,20 @@ export function StatsView({ userId }: StatsViewProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Cigarette className="h-5 w-5 text-gray-600" />
-            Total Usage (30 days)
+            {t.totalUsage30Days}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-3xl font-bold text-gray-900">{stats.totalPuffs}</div>
-              <div className="text-sm text-gray-600">Total Puffs</div>
+              <div className="text-sm text-gray-600">{t.totalPuffs}</div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className="text-3xl font-bold text-orange-600">
                 {formatNumber(stats.totalNicotine)}mg
               </div>
-              <div className="text-sm text-gray-600">Total Nicotine</div>
+              <div className="text-sm text-gray-600">{t.totalNicotine}</div>
             </div>
           </div>
         </CardContent>
@@ -105,14 +109,14 @@ export function StatsView({ userId }: StatsViewProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingDown className="h-5 w-5 text-gray-600" />
-            Daily Averages
+            {t.dailyAverages}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
             <div>
-              <div className="font-medium text-gray-900">Puffs per day</div>
-              <div className="text-sm text-gray-600">Last 30 days</div>
+              <div className="font-medium text-gray-900">{t.puffsPerDay}</div>
+              <div className="text-sm text-gray-600">{t.last30Days}</div>
             </div>
             <div className="text-right">
               <div className="text-xl font-bold text-blue-600">
@@ -125,7 +129,7 @@ export function StatsView({ userId }: StatsViewProps) {
                   ) : (
                     <TrendingUp className="h-3 w-3 mr-1" />
                   )}
-                  {weekStats.averagePuffsPerDay < stats.averagePuffsPerDay ? 'Improving' : 'Increasing'}
+                  {weekStats.averagePuffsPerDay < stats.averagePuffsPerDay ? t.improving : t.increasing}
                 </Badge>
               )}
             </div>
@@ -133,8 +137,8 @@ export function StatsView({ userId }: StatsViewProps) {
 
           <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
             <div>
-              <div className="font-medium text-gray-900">Nicotine per day</div>
-              <div className="text-sm text-gray-600">Last 30 days</div>
+              <div className="font-medium text-gray-900">{t.nicotinePerDay}</div>
+              <div className="text-sm text-gray-600">{t.last30Days}</div>
             </div>
             <div className="text-right">
               <div className="text-xl font-bold text-orange-600">
@@ -147,7 +151,7 @@ export function StatsView({ userId }: StatsViewProps) {
                   ) : (
                     <TrendingUp className="h-3 w-3 mr-1" />
                   )}
-                  {weekStats.averageNicotinePerDay < stats.averageNicotinePerDay ? 'Improving' : 'Increasing'}
+                  {weekStats.averageNicotinePerDay < stats.averageNicotinePerDay ? t.improving : t.increasing}
                 </Badge>
               )}
             </div>
@@ -161,7 +165,7 @@ export function StatsView({ userId }: StatsViewProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-gray-600" />
-              Recent Activity
+              {t.recentActivity}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -170,19 +174,15 @@ export function StatsView({ userId }: StatsViewProps) {
                 <div key={day.date} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <div>
                     <div className="font-medium text-gray-900">
-                      {new Date(day.date).toLocaleDateString('en-US', { 
-                        weekday: 'short', 
-                        month: 'short', 
-                        day: 'numeric' 
-                      })}
+                      {formatDate(day.date, language)}
                     </div>
                     <div className="text-sm text-gray-600">
-                      {formatNumber(day.nicotineAmount)}mg nicotine
+                      {formatNumber(day.nicotineAmount)}mg {t.nicotine}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-gray-900">{day.puffCount}</div>
-                    <div className="text-sm text-gray-600">puffs</div>
+                    <div className="text-sm text-gray-600">{t.puffs}</div>
                   </div>
                 </div>
               ))}
@@ -197,12 +197,12 @@ export function StatsView({ userId }: StatsViewProps) {
           <CardContent className="p-6 text-center">
             <Award className="h-12 w-12 text-green-600 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-green-700 mb-2">
-              {stats.currentStreak} Day{stats.currentStreak !== 1 ? 's' : ''} Clean!
+              {stats.currentStreak} {stats.currentStreak !== 1 ? t.daysClean : t.daysClean.slice(0, -1)} {t.daysCleanMessage}
             </h3>
             <p className="text-green-600">
               {stats.currentStreak >= 7 
-                ? "Amazing progress! You're building a great habit."
-                : "Great start! Keep building your streak."}
+                ? t.amazingProgress
+                : t.keepBuilding}
             </p>
           </CardContent>
         </Card>

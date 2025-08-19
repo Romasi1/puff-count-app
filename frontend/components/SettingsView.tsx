@@ -5,19 +5,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Settings, Target, Droplets, Save, Calendar } from 'lucide-react';
+import { Languages } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation, type Language } from '@/lib/i18n';
 import backend from '~backend/client';
 import type { User } from '~backend/puff/create_user';
 
 interface SettingsViewProps {
   userId: number;
   user: User;
+  language: Language;
 }
 
-export function SettingsView({ userId, user }: SettingsViewProps) {
+export function SettingsView({ userId, user, language }: SettingsViewProps) {
   const [nicotinePerPuff, setNicotinePerPuff] = useState(user.nicotinePerPuff.toString());
   const [dailyGoal, setDailyGoal] = useState(user.dailyGoal.toString());
   const [todayGoal, setTodayGoal] = useState('');
+  const t = useTranslation(language);
+  const { setLanguage } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -42,15 +48,15 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] });
       toast({
-        title: "Settings updated",
-        description: "Your preferences have been saved successfully.",
+        title: t.settingsUpdated,
+        description: t.settingsUpdatedMessage,
       });
     },
     onError: (error) => {
       console.error('Failed to update user:', error);
       toast({
-        title: "Error",
-        description: "Failed to update settings. Please try again.",
+        title: t.error,
+        description: t.failedToUpdate,
         variant: "destructive",
       });
     },
@@ -62,15 +68,15 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['goal'] });
       toast({
-        title: "Goal set",
-        description: "Your daily goal has been updated.",
+        title: t.goalSet,
+        description: t.goalSetMessage,
       });
     },
     onError: (error) => {
       console.error('Failed to set goal:', error);
       toast({
-        title: "Error",
-        description: "Failed to set goal. Please try again.",
+        title: t.error,
+        description: t.failedToSetGoal,
         variant: "destructive",
       });
     },
@@ -82,8 +88,8 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
 
     if (isNaN(nicotine) || nicotine < 0) {
       toast({
-        title: "Invalid input",
-        description: "Please enter a valid nicotine amount.",
+        title: t.invalidInput,
+        description: t.invalidNicotine,
         variant: "destructive",
       });
       return;
@@ -91,8 +97,8 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
 
     if (isNaN(goal) || goal < 0) {
       toast({
-        title: "Invalid input",
-        description: "Please enter a valid daily goal.",
+        title: t.invalidInput,
+        description: t.invalidGoal,
         variant: "destructive",
       });
       return;
@@ -109,8 +115,8 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
 
     if (isNaN(goal) || goal < 0) {
       toast({
-        title: "Invalid input",
-        description: "Please enter a valid goal number.",
+        title: t.invalidInput,
+        description: t.invalidGoal,
         variant: "destructive",
       });
       return;
@@ -122,23 +128,51 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-        <p className="text-gray-600">Customize your tracking preferences</p>
+        <h2 className="text-2xl font-bold text-gray-900">{t.settings}</h2>
+        <p className="text-gray-600">{t.customizePreferences}</p>
       </div>
+
+      {/* Language Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Languages className="h-5 w-5 text-gray-600" />
+            {t.language}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant={language === 'en' ? "default" : "outline"}
+              onClick={() => setLanguage('en')}
+              className="w-full"
+            >
+              🇺🇸 English
+            </Button>
+            <Button
+              variant={language === 'es' ? "default" : "outline"}
+              onClick={() => setLanguage('es')}
+              className="w-full"
+            >
+              🇪🇸 Español
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* User Preferences */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-gray-600" />
-            User Preferences
+            {t.userPreferences}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nicotine" className="flex items-center gap-2">
               <Droplets className="h-4 w-4 text-blue-600" />
-              Nicotine per puff (mg)
+              {t.nicotinePerPuffLabel}
             </Label>
             <Input
               id="nicotine"
@@ -150,14 +184,14 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
               placeholder="0.5"
             />
             <p className="text-sm text-gray-600">
-              Typical range: 0.3-2.0mg per puff depending on your device and e-liquid
+              {t.nicotinePerPuffDesc}
             </p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="dailyGoal" className="flex items-center gap-2">
               <Target className="h-4 w-4 text-green-600" />
-              Default daily goal (puffs)
+              {t.defaultDailyGoal}
             </Label>
             <Input
               id="dailyGoal"
@@ -168,7 +202,7 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
               placeholder="0"
             />
             <p className="text-sm text-gray-600">
-              Set to 0 to disable daily goals, or set a target to work towards
+              {t.defaultDailyGoalDesc}
             </p>
           </div>
 
@@ -178,7 +212,7 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
             className="w-full"
           >
             <Save className="h-4 w-4 mr-2" />
-            {updateUserMutation.isPending ? 'Saving...' : 'Save Settings'}
+            {updateUserMutation.isPending ? t.saving : t.saveSettings}
           </Button>
         </CardContent>
       </Card>
@@ -188,12 +222,12 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-blue-600" />
-            Today's Goal
+            {t.todaysGoal}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="todayGoal">Puff limit for today</Label>
+            <Label htmlFor="todayGoal">{t.puffLimitToday}</Label>
             <Input
               id="todayGoal"
               type="number"
@@ -203,17 +237,17 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
               placeholder="0"
             />
             <p className="text-sm text-gray-600">
-              Override your default goal for today only
+              {t.overrideGoal}
             </p>
           </div>
 
           {goalData && (
             <div className="p-3 bg-blue-50 rounded-lg">
               <div className="text-sm text-blue-700">
-                <strong>Current progress:</strong> {goalData.currentPuffs} of {goalData.goal?.targetPuffs || 0} puffs
+                <strong>{t.currentProgress}:</strong> {goalData.currentPuffs} {t.ofGoal} {goalData.goal?.targetPuffs || 0} {t.puffs}
               </div>
               <div className="text-sm text-blue-600 mt-1">
-                {goalData.progress.toFixed(1)}% of today's goal
+                {goalData.progress.toFixed(1)}% {t.ofGoal}
               </div>
             </div>
           )}
@@ -225,7 +259,7 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
             variant="outline"
           >
             <Target className="h-4 w-4 mr-2" />
-            {setGoalMutation.isPending ? 'Setting...' : 'Set Today\'s Goal'}
+            {setGoalMutation.isPending ? t.setting : t.setTodaysGoal}
           </Button>
         </CardContent>
       </Card>
@@ -233,22 +267,22 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
       {/* App Information */}
       <Card>
         <CardHeader>
-          <CardTitle>About Puff Count</CardTitle>
+          <CardTitle>{t.aboutPuffCount}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="text-sm text-gray-600">
             <p className="mb-2">
-              Puff Count helps you track your vaping habits and work towards reducing or quitting.
+              {t.aboutDescription}
             </p>
             <p className="mb-2">
-              <strong>Tips for success:</strong>
+              <strong>{t.tipsForSuccess}</strong>
             </p>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>Set realistic daily goals and gradually reduce them</li>
-              <li>Track every puff honestly for accurate data</li>
-              <li>Review your charts regularly to identify patterns</li>
-              <li>Celebrate your clean streaks and progress</li>
-              <li>Consider seeking professional help if needed</li>
+              <li>{t.tip1}</li>
+              <li>{t.tip2}</li>
+              <li>{t.tip3}</li>
+              <li>{t.tip4}</li>
+              <li>{t.tip5}</li>
             </ul>
           </div>
         </CardContent>
@@ -257,14 +291,14 @@ export function SettingsView({ userId, user }: SettingsViewProps) {
       {/* Data Management */}
       <Card className="border-red-200">
         <CardHeader>
-          <CardTitle className="text-red-700">Data Management</CardTitle>
+          <CardTitle className="text-red-700">{t.dataManagement}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-600 mb-4">
-            Your data is stored locally and securely. All tracking information remains private.
+            {t.dataDescription}
           </p>
           <div className="text-xs text-gray-500">
-            User ID: {userId} • Created: {new Date(user.createdAt).toLocaleDateString()}
+            {t.userId}: {userId} • {t.created}: {new Date(user.createdAt).toLocaleDateString()}
           </div>
         </CardContent>
       </Card>
