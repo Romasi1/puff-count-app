@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">US Radio</string>
+    <string name="search_hint">Buscar radios...</string>
+    <string name="favorites">Favoritos</string>
+    <string name="all_stations">Todas las Radios</string>
+    <string name="no_favorites">No tienes radios favoritas</string>
+    <string name="no_stations">No se encontraron radios</string>
+    <string name="loading">Cargando...</string>
+    <string name="error_loading">Error al cargar las radios</string>
+    <string name="retry">Reintentar</string>
+    <string name="play">Reproducir</string>
+    <string name="pause">Pausar</string>
+    <string name="stop">Detener</string>
+    <string name="add_to_favorites">Agregar a favoritos</string>
+    <string name="remove_from_favorites">Quitar de favoritos</string>
+    <string name="now_playing">Reproduciendo ahora</string>
+    <string name="connecting">Conectando...</string>
+    <string name="buffering">Cargando...</string>
+</resources>
